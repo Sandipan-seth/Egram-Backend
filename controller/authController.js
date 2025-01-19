@@ -9,7 +9,7 @@ const register = async (req, res) => {
     let existingUser = await User.findOne({ email });
     if (existingUser) {
       return res
-        .status(400)
+        .status(409)
         .json({ success: false, message: "User already exists" });
     }
     if (role === "admin" && code !== process.env.ADMIN_CODE) {
@@ -40,18 +40,18 @@ const register = async (req, res) => {
       { expiresIn: "1h" }
     );
 
-    res.cookie("token", token, { httpOnly: true });
+    // res.cookie("token", token, { httpOnly: true });
 
     res
       .status(201)
       .json({
         success: true,
         message: "User created successfully",
-        newUser,
+        user:newUser,
         token,
       });
   } catch (error) {
-    res.status(500).json({ success: false, message: "Something went wrong" });
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
@@ -120,4 +120,16 @@ const decode = async (req, res) => {
   }
 }
 
-export { register, login, decode };
+const logout = async (req, res) => {
+  try {
+    res.clearCookie("token");
+    res.json({ success: true, message: "User logged out successfully" });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+};
+
+
+
+
+export { register, login, decode, logout };
