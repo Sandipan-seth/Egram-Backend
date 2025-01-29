@@ -36,8 +36,7 @@ const register = async (req, res) => {
 
     const token = jwt.sign(
       { userId: newUser._id, id: newUser._id },
-      process.env.JWT_SECRET,
-      { expiresIn: "1h" }
+      process.env.JWT_SECRET
     );
 
     // res.cookie("token", token, { httpOnly: true });
@@ -48,7 +47,7 @@ const register = async (req, res) => {
         success: true,
         message: "User created successfully",
         user:newUser,
-        token,
+        token
       });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -90,8 +89,7 @@ const login = async (req, res) => {
     }
     const token = jwt.sign(
       { userId: existingUser._id, id: existingUser._id },
-      process.env.JWT_SECRET,
-      { expiresIn: "1h" }
+      process.env.JWT_SECRET
     );
     res.cookie("token", token, { httpOnly: true });
     res
@@ -114,7 +112,7 @@ const decode = async (req, res) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
     const user = await User.findOne({ _id: decoded.userId });
-    res.json({ success: true, user });
+    res.json({ success: true, user });     
   } catch (error) {
     res.json({ success: false, message: error.message });
   }
