@@ -3,8 +3,6 @@ import jwt from "jsonwebtoken";
 import User from "../models/userModel.js";
 import Service from "../models/serviceModel.js";
 
-
-
 // "/api/user/getUsers"
 
 const getUsers = async (req, res) => {
@@ -18,7 +16,6 @@ const getUsers = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
-
 
 // "/api/user/updateUser"
 
@@ -41,7 +38,6 @@ const updateUser = async (req, res) => {
   }
 };
 
-
 // "/api/user/applyService"
 
 const applyService = async (req, res) => {
@@ -57,7 +53,27 @@ const applyService = async (req, res) => {
     address2,
     pincode,
   } = req.body;
-  
+
+  if (
+    !serviceName ||
+    !serviceType ||
+    !name ||
+    !phone ||
+    !status ||
+    !address1 ||
+    !pincode
+  ) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Please fill all the fields" });
+  }
+
+  if (serviceType === "New" && !age) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Please fill all the fields" });
+  }
+
   try {
     const decodedUser = jwt.verify(token, process.env.JWT_SECRET);
     const user = await User.findOne({ _id: decodedUser.userId });
@@ -85,14 +101,12 @@ const applyService = async (req, res) => {
       success: true,
       service,
       user,
-      message: "Service applied successfully"
+      message: "Service applied successfully",
     });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });
   }
 };
-
-
 
 // "/api/user/decodeService"
 
@@ -106,11 +120,31 @@ const decodeService = async (req, res) => {
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });
   }
-}
+};
 
+const cancelService = async (req, res) => {
+  console.log(req.body);
+  const { token, serviceId } = req.body;
+  try {
+    const decodedUser = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findOne({ _id: decodedUser.userId });
+    const service = await Service.findOne({ _id: serviceId });
+    if (service.status === "Approved") {
+      return res
+        .status(400)
+        .json({ success: false, message: "Service already approved" });
+    }
+    let removedService = await Service.findOne({ _id: serviceId });
+    await Service.deleteOne({ _id: serviceId });
+    user.services = user.services.remove(serviceId);
+    await user.save();
+    res.status(200).json({
+      success: true,
+      message: `Service ${removedService.serviceName} cancelled successfully`,
+    });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
 
-
-
-
-
-export { getUsers, updateUser, applyService, decodeService };
+export { getUsers, updateUser, applyService, decodeService, cancelService };
