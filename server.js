@@ -8,12 +8,15 @@ import cookieParser from "cookie-parser";
 import authRouter from "./routes/authRouter.js";
 import userRouter from "./routes/userRouter.js";
 import adminRouter from "./routes/adminRouter.js";
+import connectCloudinary from "./config/cloudinary.js";
+import officerRouter from "./routes/officerRouter.js";
 
 
 const app = express();
 const port = process.env.PORT || 7000;
 dotenv.config();
 connectDB();
+connectCloudinary();
 
 // Middleware
 app.use(cors());
@@ -25,6 +28,7 @@ app.use(express.json());
 app.use("/api/auth", authRouter);
 app.use("/api/user", userRouter);
 app.use("/api/admin", adminRouter);
+app.use("/api/officer", officerRouter);
 
 
 

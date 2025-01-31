@@ -43,7 +43,7 @@ const serviceSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ["Applied", "Approved", "Rejected"],
+    enum: ["Applied","Forwarded to Officer", "Verified", "Rejected By Admin", "Rejected By Officer"],
     default: "Applied",
     required: true
   },

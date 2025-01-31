@@ -4,13 +4,11 @@ import Service from "../models/serviceModel.js";
 const getServiceDetails = async (req, res) => {
   try {
     const services = await Service.find();
-    res
-      .status(200)
-      .json({
-        success: true,
-        services,
-        message: "Services fetched successfully",
-      });
+    res.status(200).json({
+      success: true,
+      services,
+      message: "Services fetched successfully",
+    });
   } catch (error) {
     res.json({ success: false, message: error.message });
   }
@@ -20,13 +18,11 @@ const getServiceDetails = async (req, res) => {
 const fetchServiceById = async (req, res) => {
   try {
     const service = await Service.findById(req.params.id);
-    res
-      .status(200)
-      .json({
-        success: true,
-        service,
-        message: "Service fetched successfully",
-      });
+    res.status(200).json({
+      success: true,
+      service,
+      message: "Service fetched successfully",
+    });
   } catch (error) {
     res.json({ success: false, message: error.message });
   }
@@ -35,14 +31,12 @@ const fetchServiceById = async (req, res) => {
 const rejectDocument = async (req, res) => {
   try {
     let rejectedService = await Service.findOne({ _id: req.params.id });
-    rejectedService.status = "Rejected By Admin";
+    rejectedService.status = "Rejected By Officer";
     await rejectedService.save();
-    res
-      .status(200)
-      .json({
-        success: true,
-        message: "Application rejected successfully ",
-      });
+    res.status(200).json({
+      success: true,
+      message: "Application rejected successfully ",
+    });
   } catch (error) {
     res.json({ success: false, message: error.message });
   }
@@ -51,11 +45,11 @@ const rejectDocument = async (req, res) => {
 const forwardDocument = async (req, res) => {
   try {
     let rejectedService = await Service.findOne({ _id: req.params.id });
-    rejectedService.status = "Forwarded to Officer";
+    rejectedService.status = "Verified";
     await rejectedService.save();
     res.status(200).json({
       success: true,
-      message: "Application Forwarded successfully ",
+      message: "Application Verified successfully ",
     });
   } catch (error) {
     res.json({ success: false, message: error.message });

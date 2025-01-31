@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
 import User from "../models/userModel.js";
 import Service from "../models/serviceModel.js";
+import { v2 as cloudinary } from "cloudinary";
 
 // "/api/user/getUsers"
 
@@ -128,19 +129,14 @@ const cancelService = async (req, res) => {
   try {
     const decodedUser = jwt.verify(token, process.env.JWT_SECRET);
     const user = await User.findOne({ _id: decodedUser.userId });
-    const service = await Service.findOne({ _id: serviceId });
-    if (service.status === "Approved") {
-      return res
-        .status(400)
-        .json({ success: false, message: "Service already approved" });
-    }
+    
     let removedService = await Service.findOne({ _id: serviceId });
     await Service.deleteOne({ _id: serviceId });
     user.services = user.services.remove(serviceId);
     await user.save();
     res.status(200).json({
       success: true,
-      message: `Service ${removedService.serviceName} cancelled successfully`,
+      message: `Service ${removedService.serviceName} Removed successfully`,
     });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });

@@ -1,9 +1,9 @@
 import mongoose from "mongoose";
 
-const ConnectDb = async (req, res) => {
+const ConnectDb = async () => {
   try {
     mongoose.connection.on("connected", () => {
-      console.log("Connected to MongoDB");
+      console.log("Connected to MongoDB....");
     });
     mongoose.connection.on("error", (err) => {
       console.log("Error in connection to MongoDB", err);
