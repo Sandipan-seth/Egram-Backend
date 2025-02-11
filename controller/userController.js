@@ -21,13 +21,14 @@ const getUsers = async (req, res) => {
 // "/api/user/updateUser"
 
 const updateUser = async (req, res) => {
-  const { name, phone, token } = req.body;
+  const { name, phone, token,image } = req.body;
   console.log(req.body);
   try {
     let decodedUser = jwt.verify(token, process.env.JWT_SECRET);
     const foundedUser = await User.findOne({ _id: decodedUser.userId });
     foundedUser.fullname = name;
     foundedUser.phone = phone;
+    // foundedUser.image = image;
     await foundedUser.save();
     res.status(200).json({
       success: true,
