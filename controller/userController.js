@@ -2,7 +2,9 @@ import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
 import User from "../models/userModel.js";
 import Service from "../models/serviceModel.js";
+// import cloudinary from "../config/cloudinary.js";/
 import { v2 as cloudinary } from "cloudinary";
+import multer from "multer";
 
 // "/api/user/getUsers"
 
@@ -18,17 +20,47 @@ const getUsers = async (req, res) => {
   }
 };
 
+
+
 // "/api/user/updateUser"
 
 const updateUser = async (req, res) => {
-  const { name, phone, token,image } = req.body;
-  console.log(req.body);
   try {
+    const { name, phone, token } = req.body;
+
+    let imageUrl = "";
+
+    if (req.file) {
+      // Cloudinary upload from buffer
+      const uploadPromise = new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream(
+          { resource_type: "image" },
+          (error, result) => {
+            if (error) reject(error);
+            else resolve(result.secure_url);
+          }
+        );
+        stream.end(req.file.buffer); // Send buffer to Cloudinary
+      });
+
+      imageUrl = await uploadPromise;
+    }
+
     let decodedUser = jwt.verify(token, process.env.JWT_SECRET);
     const foundedUser = await User.findOne({ _id: decodedUser.userId });
+
+    if (!foundedUser) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
+    }
+
     foundedUser.fullname = name;
     foundedUser.phone = phone;
-    // foundedUser.image = image;
+    if (imageUrl) {
+      foundedUser.image = imageUrl;
+    }
+
     await foundedUser.save();
     res.status(200).json({
       success: true,
@@ -36,9 +68,15 @@ const updateUser = async (req, res) => {
       message: "User updated successfully",
     });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    console.error("Update User Error:", error);
+    res
+      .status(500)
+      .json({ success: false, message: "Server error. Try again later." });
   }
 };
+
+
+
 
 // "/api/user/applyService"
 
@@ -130,7 +168,7 @@ const cancelService = async (req, res) => {
   try {
     const decodedUser = jwt.verify(token, process.env.JWT_SECRET);
     const user = await User.findOne({ _id: decodedUser.userId });
-    
+
     let removedService = await Service.findOne({ _id: serviceId });
     await Service.deleteOne({ _id: serviceId });
     user.services = user.services.remove(serviceId);

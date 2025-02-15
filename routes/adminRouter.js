@@ -1,6 +1,7 @@
 import express from "express";
 import {
   fetchServiceById,
+  fetchUserById,
   forwardDocument,
   getServiceDetails,
   rejectDocument,
@@ -10,6 +11,7 @@ const adminRouter = express.Router();
 
 adminRouter.post("/getServices", getServiceDetails);
 adminRouter.post("/fetchServiceById/:id", fetchServiceById);
+adminRouter.post("/fetchUserById/:id", fetchUserById);
 adminRouter.post("/rejectDocument/:id", rejectDocument);
 adminRouter.post("/forwardDocument/:id", forwardDocument);
 

@@ -1,14 +1,26 @@
 import multer from "multer";
-import { CloudinaryStorage } from "multer-storage-cloudinary";
-import cloudinary from "../config/cloudinary.js";
+import path from "path";
 
-const storage = new CloudinaryStorage({
-  cloudinary: cloudinary,
-  params: {
-    allowed_formats: ["jpg", "png", "jpeg", "gif"],
-  },
+// Storage setup (no filename needed if using Cloudinary)
+const storage = multer.memoryStorage(); // Store file in memory for Cloudinary upload
+
+const fileFilter = (req, file, cb) => {
+  const allowedFileTypes = /jpeg|jpg|png/;
+  const extname = allowedFileTypes.test(
+    path.extname(file.originalname).toLowerCase()
+  );
+  const mimetype = allowedFileTypes.test(file.mimetype);
+
+  if (mimetype && extname) {
+    return cb(null, true);
+  } else {
+    cb(new Error("Only images (JPEG, JPG, PNG) are allowed!"), false);
+  }
+};
+
+const upload = multer({
+  storage,
+  fileFilter,
 });
-
-const upload = multer({ storage: storage });
 
 export default upload;

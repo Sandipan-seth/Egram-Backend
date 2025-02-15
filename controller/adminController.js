@@ -1,15 +1,36 @@
 import Service from "../models/serviceModel.js";
+import User from "../models/userModel.js";
 
 // /api/admin/getServices
 const getServiceDetails = async (req, res) => {
   try {
     const services = await Service.find();
+
+    // console.log(services);
+
     res
       .status(200)
       .json({
         success: true,
         services,
         message: "Services fetched successfully",
+      });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+};
+
+
+// /api/admin/fetchUserById/:id
+const fetchUserById = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    res
+      .status(200)
+      .json({
+        success: true,
+        user,
+        message: "User fetched successfully",
       });
   } catch (error) {
     res.json({ success: false, message: error.message });
@@ -62,4 +83,10 @@ const forwardDocument = async (req, res) => {
   }
 };
 
-export { getServiceDetails, fetchServiceById, rejectDocument, forwardDocument };
+export {
+  getServiceDetails,
+  fetchServiceById,
+  rejectDocument,
+  forwardDocument,
+  fetchUserById,
+};
